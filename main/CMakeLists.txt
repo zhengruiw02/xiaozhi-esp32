@@ -10,7 +10,9 @@ set(SOURCES "audio_codecs/audio_codec.cc"
             "display/display.cc"
             "display/no_display.cc"
             "display/lcd_display.cc"
+            "display/esp_lcd_sh1106.c"
             "display/ssd1306_display.cc"
+            "display/sh1106_display.cc"
             "boards/lilygo-t-circle-s3/esp_lcd_gc9d01n.c"
             "protocols/protocol.cc"
             "protocols/mqtt_protocol.cc"
@@ -43,6 +45,8 @@ elseif(CONFIG_BOARD_TYPE_BREAD_COMPACT_ML307)
     set(BOARD_TYPE "bread-compact-ml307")
 elseif(CONFIG_BOARD_TYPE_BREAD_COMPACT_ESP32)
     set(BOARD_TYPE "bread-compact-esp32")    
+elseif(CONFIG_BOARD_TYPE_BREAD_COMPACT_SH1106)
+    set(BOARD_TYPE "bread-compact-wifi-sh1106")    
 elseif(CONFIG_BOARD_TYPE_ESP_BOX_3)
     set(BOARD_TYPE "esp-box-3")
 elseif(CONFIG_BOARD_TYPE_KEVIN_BOX_1)
