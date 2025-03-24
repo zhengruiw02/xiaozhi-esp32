@@ -3,6 +3,8 @@
 
 #include <driver/gpio.h>
 
+#define USE_1_3_TFT
+
 #define AUDIO_INPUT_SAMPLE_RATE  16000
 #define AUDIO_OUTPUT_SAMPLE_RATE 24000
 
@@ -27,6 +29,21 @@
 
 #endif
 
+#ifdef USE_1_3_TFT
+#define BUILTIN_LED_GPIO        GPIO_NUM_1     //  GPIO_NUM_48
+#define BOOT_BUTTON_GPIO        GPIO_NUM_0
+#define TOUCH_BUTTON_GPIO       GPIO_NUM_NC     //  GPIO_NUM_47
+#define VOLUME_UP_BUTTON_GPIO   GPIO_NUM_40
+#define VOLUME_DOWN_BUTTON_GPIO GPIO_NUM_39
+
+#define DISPLAY_BACKLIGHT_PIN GPIO_NUM_45   //  GPIO_NUM_48
+#define DISPLAY_MOSI_PIN      GPIO_NUM_14
+#define DISPLAY_CLK_PIN       GPIO_NUM_13
+#define DISPLAY_DC_PIN        GPIO_NUM_47
+#define DISPLAY_RST_PIN       GPIO_NUM_21
+#define DISPLAY_CS_PIN        GPIO_NUM_48   //  GPIO_NUM_45
+
+#else
 
 #define BUILTIN_LED_GPIO        GPIO_NUM_48
 #define BOOT_BUTTON_GPIO        GPIO_NUM_0
@@ -42,6 +59,7 @@
 #define DISPLAY_RST_PIN       GPIO_NUM_45
 #define DISPLAY_CS_PIN        GPIO_NUM_41
 
+#endif
 
 #ifdef CONFIG_LCD_ST7789_240X320
 #define LCD_TYPE_ST7789_SERIAL
