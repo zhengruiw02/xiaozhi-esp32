@@ -186,7 +186,7 @@ private:
         thing_manager.AddThing(iot::CreateThing("Speaker"));
         thing_manager.AddThing(iot::CreateThing("Screen"));
 #elif CONFIG_IOT_PROTOCOL_MCP
-
+        static LampController lamp(LAMP_GPIO);
 #endif
     }
 
