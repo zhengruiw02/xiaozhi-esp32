@@ -6,6 +6,7 @@
 #include "button.h"
 #include "config.h"
 #include "mcp_server.h"
+#include "settings.h"
 #include "lamp_controller.h"
 #include "iot/thing_manager.h"
 #include "led/single_led.h"
@@ -166,7 +167,13 @@ private:
         config.fb_location = CAMERA_FB_IN_PSRAM;
         config.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
         camera_ = new Esp32Camera(config);
-        camera_->SetHMirror(false);
+        // camera_->SetHMirror(CAMERA_HMIRROR);
+        // camera_->SetVFlip(CAMERA_VFLIP);
+        Settings settings("s3cam", false);
+        // 考虑到部分复刻使用了不可动摄像头的设计，默认启用翻转
+        bool camera_flipped = static_cast<bool>(settings.GetInt("camera-flipped", 1));
+        camera_->SetHMirror(camera_flipped);
+        camera_->SetVFlip(camera_flipped);
     }
 
     void InitializeButtons() {
@@ -190,6 +197,24 @@ private:
 #endif
     }
 
+    void InitializeTools() {
+        auto& mcp_server = McpServer::GetInstance();
+        // 定义设备的属性
+
+        mcp_server.AddTool("self.camera.set_camera_flipped", "翻转摄像头图像方向", PropertyList(), [this](const PropertyList& properties) -> ReturnValue {
+            Settings settings("s3cam", true);
+            // 考虑到部分复刻使用了不可动摄像头的设计，默认启用翻转
+            bool flipped = !static_cast<bool>(settings.GetInt("camera-flipped", 1));
+            
+            camera_->SetHMirror(flipped);
+            camera_->SetVFlip(flipped);
+            
+            settings.SetInt("camera-flipped", flipped ? 1 : 0);
+            
+            return true;
+        });
+    }
+
 public:
     CompactWifiBoardS3Cam() :
         boot_button_(BOOT_BUTTON_GPIO) {
@@ -198,6 +223,7 @@ public:
         InitializeButtons();
         InitializeIot();
         InitializeCamera();
+        InitializeTools();
         if (DISPLAY_BACKLIGHT_PIN != GPIO_NUM_NC) {
             GetBacklight()->RestoreBrightness();
         }
