@@ -8,6 +8,7 @@
 #include "mcp_server.h"
 #include "settings.h"
 #include "lamp_controller.h"
+#include "mcp_rgb_lamp.h"
 #include "iot/thing_manager.h"
 #include "led/single_led.h"
 #include "esp32_camera.h"
@@ -193,7 +194,8 @@ private:
         thing_manager.AddThing(iot::CreateThing("Speaker"));
         thing_manager.AddThing(iot::CreateThing("Screen"));
 #elif CONFIG_IOT_PROTOCOL_MCP
-        static LampController lamp(LAMP_GPIO);
+        // static LampController lamp(LAMP_GPIO);
+        static RGBLampController rgbLamp(LAMP_GPIO_R, LAMP_GPIO_G, LAMP_GPIO_B);
 #endif
     }
 
