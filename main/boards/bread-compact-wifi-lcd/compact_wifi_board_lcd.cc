@@ -1,5 +1,6 @@
 #include "wifi_board.h"
 #include "audio_codecs/no_audio_codec.h"
+#include "audio_codecs/es8311_audio_codec.h"
 #include "display/lcd_display.h"
 #include "system_reset.h"
 #include "application.h"
@@ -104,9 +105,31 @@ private:
  
     Button boot_button_;
     LcdDisplay* display_;
+#if defined(AUDIO_I2S_USE_CODEC)
+    i2c_master_bus_handle_t codec_i2c_bus_;
+#endif
     i2c_master_bus_handle_t i2c_bus_;
     Ft6336* ft6336_;
     esp_timer_handle_t touchpad_timer_;
+
+#if defined(AUDIO_I2S_USE_CODEC)
+    void InitializeCodecI2c() {
+        // Initialize I2C peripheral
+        i2c_master_bus_config_t i2c_bus_cfg = {
+            .i2c_port = I2C_NUM_0,
+            .sda_io_num = AUDIO_CODEC_I2C_SDA_PIN,
+            .scl_io_num = AUDIO_CODEC_I2C_SCL_PIN,
+            .clk_source = I2C_CLK_SRC_DEFAULT,
+            .glitch_ignore_cnt = 7,
+            .intr_priority = 0,
+            .trans_queue_depth = 0,
+            .flags = {
+                .enable_internal_pullup = 1,
+            },
+        };
+        ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_bus_cfg, &codec_i2c_bus_));
+    }
+#endif
 
     void InitializeSpi() {
         spi_bus_config_t buscfg = {};
@@ -290,6 +313,9 @@ private:
 public:
     CompactWifiBoardLCD() :
         boot_button_(BOOT_BUTTON_GPIO) {
+#if defined(AUDIO_I2S_USE_CODEC)
+        InitializeCodecI2c();
+#endif
         InitializeI2c();
         I2cDetect();
         InitializeSpi();
@@ -312,6 +338,10 @@ public:
 #ifdef AUDIO_I2S_METHOD_SIMPLEX
         static NoAudioCodecSimplex audio_codec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
             AUDIO_I2S_SPK_GPIO_BCLK, AUDIO_I2S_SPK_GPIO_LRCK, AUDIO_I2S_SPK_GPIO_DOUT, AUDIO_I2S_MIC_GPIO_SCK, AUDIO_I2S_MIC_GPIO_WS, AUDIO_I2S_MIC_GPIO_DIN);
+#elif defined(AUDIO_I2S_USE_CODEC)
+        static Es8311AudioCodec audio_codec(codec_i2c_bus_, I2C_NUM_0, AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
+            AUDIO_I2S_GPIO_MCLK, AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS, AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN,
+            AUDIO_CODEC_PA_PIN, AUDIO_CODEC_ES8311_ADDR);
 #else
         static NoAudioCodecDuplex audio_codec(AUDIO_INPUT_SAMPLE_RATE, AUDIO_OUTPUT_SAMPLE_RATE,
             AUDIO_I2S_GPIO_BCLK, AUDIO_I2S_GPIO_WS, AUDIO_I2S_GPIO_DOUT, AUDIO_I2S_GPIO_DIN);
