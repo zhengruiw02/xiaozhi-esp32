@@ -63,12 +63,12 @@ static const gc9a01_lcd_init_cmd_t gc9107_lcd_init_cmds[] = {
 };
 #endif
  
-#define TAG "CompactWifiBoardS3Cam"
+#define TAG "CompactWifiBoardS3CamNewTFT"
 
 LV_FONT_DECLARE(font_puhui_16_4);
 LV_FONT_DECLARE(font_awesome_16_4);
 
-class CompactWifiBoardS3Cam : public WifiBoard {
+class CompactWifiBoardS3CamNewTFT : public WifiBoard {
 private:
  
     Button boot_button_;
@@ -223,7 +223,7 @@ private:
     }
 
 public:
-    CompactWifiBoardS3Cam() :
+    CompactWifiBoardS3CamNewTFT() :
         boot_button_(BOOT_BUTTON_GPIO) {
         InitializeSpi();
         InitializeLcdDisplay();
@@ -270,4 +270,4 @@ public:
     }
 };
 
-DECLARE_BOARD(CompactWifiBoardS3Cam);
+DECLARE_BOARD(CompactWifiBoardS3CamNewTFT);
